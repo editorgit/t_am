@@ -9,6 +9,11 @@ from .models import Category
 @csrf_exempt
 def create_categories(request):
     if request.method == 'POST':
+        try:
+            json.loads(request.body)
+        except json.decoder.JSONDecodeError as exc:
+            return JsonResponse({"Post data must be a valid JSON Array: ": exc.msg})
+
         create_tree_data(json.loads(request.body))
         cnt = Category.objects.count()
         return JsonResponse({'Created categories': cnt})
