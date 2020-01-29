@@ -12,17 +12,21 @@ def create_categories(request):
         try:
             json.loads(request.body)
         except json.decoder.JSONDecodeError as exc:
-            return JsonResponse({"Post data must be a valid JSON Array: ": exc.msg})
+            return JsonResponse({"Error": f"Post data must be a valid JSON Array: {exc.msg}"})
 
         create_tree_data(json.loads(request.body))
         cnt = Category.objects.count()
-        return JsonResponse({'Created categories': cnt})
+        return JsonResponse({"Created categories": cnt})
 
 
 @csrf_exempt
 def get_categories(request, pk):
     result = dict()
-    cat_data = Category.objects.get(pk=pk)
+    try:
+        cat_data = Category.objects.get(pk=pk)
+    except Category.DoesNotExist:
+        return JsonResponse({"Error": f"Wrong category ID: {pk}"})
+
     result['id'] = cat_data.pk
     result['name'] = cat_data.name
     result['parents'] = get_parents(cat_data.parent)

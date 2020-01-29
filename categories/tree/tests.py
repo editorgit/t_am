@@ -70,6 +70,16 @@ class TreeTestCase(TestCase):
                                     json.dumps(initial_data),
                                     content_type="application/json")
 
+    def test_all_cats(self):
+        for category in Category.objects.all():
+            cat_data = self.client.get(f'/categories/{category.pk}').json()
+            self.assertNotEqual("Error", list(cat_data.keys())[0])
+
+    def test_not_exists_cats(self):
+        last_id = Category.objects.values_list('pk', flat=True).last()
+        cat_data = self.client.get(f'/categories/{last_id + 1}').json()
+        self.assertEqual("Error", list(cat_data.keys())[0])
+
     def test_cat_2(self):
         expected = {
             "id": 2,
